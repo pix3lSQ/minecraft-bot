@@ -1,7 +1,6 @@
 const mineflayer = require('mineflayer')
 const dns = require('dns')
 
-// Your server info
 const HOSTNAMES = ['picklebuter.aternos.me', 'wrasse.aternos.host']
 const PORT = 13422
 const USERNAME = 'PickleWickleBotter'
@@ -9,33 +8,25 @@ const VERSION = '1.20.4'
 
 let bot = null
 
-// Resolve a hostname to IP
-function resolveHost(hostname) {
-  return new Promise((resolve, reject) => {
-    dns.lookup(hostname, (err, address) => {
-      if (err) reject(err)
-      else resolve(address)
-    })
-  })
-}
-
-async function createBot() {
-  if (bot) return
-
-  let ip = null
+async function resolveServer() {
   for (const host of HOSTNAMES) {
     try {
-      ip = await resolveHost(host)
+      const ip = await new Promise((res, rej) => dns.lookup(host, (err, address) => err ? rej(err) : res(address)))
       console.log(`Resolved ${host} → ${ip}`)
-      break
+      return ip
     } catch (err) {
       console.log(`Failed to resolve ${host}, trying next...`)
     }
   }
+  return null
+}
 
+async function createBot() {
+  if (bot) return
+  const ip = await resolveServer()
   if (!ip) {
-    console.log('Could not resolve any hostname, retrying in 20 seconds...')
-    setTimeout(createBot, 20000)
+    console.log('Could not resolve any host, retrying in 30s...')
+    setTimeout(createBot, 30000)
     return
   }
 
@@ -51,29 +42,23 @@ async function createBot() {
   bot.on('login', () => console.log('Bot logged in'))
   bot.on('spawn', () => {
     console.log('Bot spawned')
-
-    // AFK movements to avoid being kicked
     setInterval(() => {
       const actions = ['forward','back','left','right']
-      const action = actions[Math.floor(Math.random() * actions.length)]
-
-      bot.setControlState(action, true)
-      setTimeout(() => bot.setControlState(action, false), 2000)
-
-      bot.setControlState('jump', true)
-      setTimeout(() => bot.setControlState('jump', false), 500)
-    }, 7000)
+      const action = actions[Math.floor(Math.random()*actions.length)]
+      bot.setControlState(action,true)
+      setTimeout(()=>bot.setControlState(action,false),2000)
+      bot.setControlState('jump',true)
+      setTimeout(()=>bot.setControlState('jump',false),500)
+    },7000)
   })
 
-  bot.on('kicked', (reason) => console.log('Kicked:', reason))
-  bot.on('error', (err) => console.log('Error:', err.code))
-
+  bot.on('kicked', reason => console.log('Kicked:', reason))
+  bot.on('error', err => console.log('Error:', err.code))
   bot.on('end', () => {
-    console.log('Disconnected. Reconnecting in 20 seconds...')
+    console.log('Disconnected. Reconnecting in 30 seconds...')
     bot = null
-    setTimeout(createBot, 20000)
+    setTimeout(createBot, 30000)
   })
 }
 
-// Start bot
 createBot()
