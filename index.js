@@ -1,46 +1,59 @@
 const mineflayer = require('mineflayer')
 
-// Your server info
-const SERVER_HOST = 'grison.aternos.host' // only the domain, no :port
-const SERVER_PORT = 13422                  // port from Aternos
-const SERVER_VERSION = '1.20.2'           // match your server version
-const BOT_USERNAME = 'AFK_Bot'            // bot name
+const HOST = 'grison.aternos.host' // your server address
+const PORT = 13422                 // your server port
+const VERSION = false              // auto-detect version
+const USERNAME = 'AFK_Bot'
 
-// Function to create the bot
-function createBot() {
+function startBot() {
+
+  console.log("Starting bot...")
+
   const bot = mineflayer.createBot({
-    host: SERVER_HOST,
-    port: SERVER_PORT,
-    username: BOT_USERNAME,
-    version: SERVER_VERSION
+    host: HOST,
+    port: PORT,
+    username: USERNAME,
+    version: VERSION
   })
 
-  bot.on('login', () => {
-    console.log("Bot joined the server!")
+  bot.once('login', () => {
+    console.log("Bot logged in")
   })
 
-  bot.on('spawn', () => {
-    bot.chat("Hello! I'm the AFK bot.")
+  bot.once('spawn', () => {
+    console.log("Bot spawned in world")
 
-    // Anti-AFK movement
-    bot.setControlState('jump', true)
-    setInterval(() => bot.setControlState('forward', true), 1000)
-  })
+    bot.chat("AFK bot online")
 
-  // If kicked or disconnected, try to reconnect after 10 seconds
-  bot.on('end', () => {
-    console.log("Bot disconnected. Reconnecting in 10 seconds...")
-    setTimeout(createBot, 10000)
+    // anti AFK movement
+    setInterval(() => {
+
+      const actions = ['forward','back','left','right','jump']
+      const action = actions[Math.floor(Math.random()*actions.length)]
+
+      bot.setControlState(action, true)
+
+      setTimeout(()=>{
+        bot.clearControlStates()
+      }, 500)
+
+    }, 5000)
+
   })
 
   bot.on('kicked', (reason) => {
-    console.log("Bot was kicked:", reason)
+    console.log("Kicked:", reason)
   })
 
   bot.on('error', (err) => {
-    console.log("Bot error:", err)
+    console.log("Error:", err.message)
   })
+
+  bot.on('end', () => {
+    console.log("Disconnected. Reconnecting in 15 seconds...")
+    setTimeout(startBot,15000)
+  })
+
 }
 
-// Start the bot
-createBot()
+startBot()
