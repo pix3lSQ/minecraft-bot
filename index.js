@@ -13,3 +13,8 @@ bot.on('login', () => {
 bot.on('spawn', () => {
   bot.chat("Hello! I'm the AFK bot.")
 })
+// Simple AFK movement
+bot.setControlState('jump', true) // bot keeps jumping
+setInterval(() => {
+  bot.setControlState('forward', true) // bot moves forward constantly
+}, 1000)
