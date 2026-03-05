@@ -1,63 +1,54 @@
 const mineflayer = require('mineflayer')
 
-let bot
-
-function startBot() {
-
-  if (bot) return
+function createBot() {
 
   console.log("Starting bot...")
 
-  bot = mineflayer.createBot({
-    host: 'wrasse.aternos.host',
+  const bot = mineflayer.createBot({
+    host: "picklebuter.aternos.me",
     port: 13422,
-    username: 'PickleBot',
-    version: '1.20.4'
+    username: "PickleBot",
+    version: "1.20.4"
   })
 
-  bot.on('login', () => {
-    console.log("Bot logged in!")
+  bot.on("login", () => {
+    console.log("Bot logged in")
   })
 
-  bot.on('spawn', () => {
-    console.log("Bot spawned!")
-    bot.chat("PickleBot is online!")
+  bot.on("spawn", () => {
+    console.log("Bot spawned")
+    bot.chat("PickleBot online!")
 
     setInterval(() => {
 
-      const actions = ['forward','back','left','right']
+      const actions = ["forward","back","left","right"]
       const action = actions[Math.floor(Math.random()*actions.length)]
 
       bot.setControlState(action,true)
 
       setTimeout(()=>{
         bot.setControlState(action,false)
-      },3000)
+      },2000)
 
-      bot.setControlState('jump',true)
+      bot.setControlState("jump",true)
 
       setTimeout(()=>{
-        bot.setControlState('jump',false)
+        bot.setControlState("jump",false)
       },500)
 
-    },8000)
+    },7000)
 
   })
 
-  bot.on('kicked', (reason) => {
-    console.log("Kicked:", reason)
+  bot.on("end", () => {
+    console.log("Disconnected. Reconnecting in 20 seconds...")
+    setTimeout(createBot,20000)
   })
 
-  bot.on('end', () => {
-    console.log("Disconnected. Reconnecting in 15 seconds...")
-    bot = null
-    setTimeout(startBot,15000)
-  })
-
-  bot.on('error', (err) => {
-    console.log("Error:", err)
+  bot.on("error", (err) => {
+    console.log("Error:", err.code)
   })
 
 }
 
-startBot()
+createBot()
