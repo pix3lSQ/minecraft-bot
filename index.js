@@ -1,4 +1,4 @@
-const mineflayer = require('mineflayer')
+ const mineflayer = require('mineflayer')
 
 function startBot() {
 
@@ -16,11 +16,11 @@ function startBot() {
   })
 
   bot.on('spawn', () => {
-    console.log("Bot spawned in the server!")
+    console.log("Bot spawned!")
 
-    bot.chat("AFK Bot online!")
+    bot.chat("AFK bot online!")
 
-    // anti-AFK movement
+    // random movement loop
     setInterval(() => {
 
       const actions = ['forward','back','left','right']
@@ -30,15 +30,22 @@ function startBot() {
 
       setTimeout(()=>{
         bot.setControlState(action,false)
-      },2000)
+      },3000)
 
+      // jump sometimes
       bot.setControlState('jump',true)
-
       setTimeout(()=>{
         bot.setControlState('jump',false)
       },500)
 
-    },10000)
+      // rotate camera randomly
+      bot.look(
+        Math.random()*Math.PI*2,
+        Math.random()*Math.PI/2,
+        true
+      )
+
+    },8000)
 
   })
 
@@ -51,8 +58,8 @@ function startBot() {
   })
 
   bot.on('end',()=>{
-    console.log("Disconnected. Reconnecting in 15 seconds...")
-    setTimeout(startBot,15000)
+    console.log("Disconnected. Reconnecting in 10 seconds...")
+    setTimeout(startBot,10000)
   })
 
 }
