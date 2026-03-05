@@ -5,8 +5,8 @@ function startBot() {
   console.log("Starting bot...")
 
   const bot = mineflayer.createBot({
-    host: 'YOURSERVER.aternos.host', // replace
-    port: 12345,                     // replace
+    host: 'wrasse.aternos.host',
+    port: 13422,
     username: 'AFK_Bot',
     version: '1.20.4'
   })
@@ -16,11 +16,11 @@ function startBot() {
   })
 
   bot.on('spawn', () => {
-    console.log("Bot spawned!")
+    console.log("Bot spawned in the server!")
 
-    bot.chat("AFK Bot is online!")
+    bot.chat("AFK Bot online!")
 
-    // prevent AFK kick
+    // anti-AFK movement
     setInterval(() => {
 
       const actions = ['forward','back','left','right']
